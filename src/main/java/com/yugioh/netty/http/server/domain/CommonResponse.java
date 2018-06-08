@@ -1,4 +1,4 @@
-package com.yugioh.netty.http.server.entity;
+package com.yugioh.netty.http.server.domain;
 
 import lombok.Data;
 

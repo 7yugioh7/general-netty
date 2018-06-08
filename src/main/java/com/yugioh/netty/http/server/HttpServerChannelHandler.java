@@ -39,6 +39,6 @@ public class HttpServerChannelHandler extends ChannelInitializer<SocketChannel> 
         // 压缩
         pipeline.addLast("compressor", new HttpContentCompressor());
         // 自定义http处理
-        pipeline.addLast("handler", new NettyHttpServerHandler());
+        pipeline.addLast("handler", new HttpNettyServerHandler());
     }
 }

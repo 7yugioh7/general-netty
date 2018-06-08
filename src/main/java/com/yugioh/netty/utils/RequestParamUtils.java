@@ -1,7 +1,7 @@
 package com.yugioh.netty.utils;
 
 import com.alibaba.fastjson.JSONObject;
-import com.yugioh.netty.http.server.entity.CommonRequest;
+import com.yugioh.netty.http.server.domain.CommonRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
@@ -37,7 +37,6 @@ public class RequestParamUtils {
             return null;
         }
         HttpMethod method = request.getMethod();
-        String jsonStr = null;
         if (HttpMethod.GET == method) {
             QueryStringDecoder decoder = new QueryStringDecoder(request.getUri());
             Map<String, List<String>> parameters = decoder.parameters();
@@ -47,15 +46,18 @@ public class RequestParamUtils {
                 Map.Entry<String, List<String>> next = iterator.next();
                 jsonObject.put(next.getKey(), replaceStr(next.getValue().get(0).trim()));
             }
-            jsonStr = jsonObject.toString();
+            return JsonUtils.parseObject(jsonObject.toString(), CommonRequest.class);
         } else if (HttpMethod.POST == method) {
             FullHttpRequest fullRequest = (FullHttpRequest) request;
-            jsonStr = ConvertUtils.buf2Str(fullRequest.content());
+            String jsonStr = ConvertUtils.buf2Str(fullRequest.content());
+            if (jsonStr.startsWith(Constants.STARTER_OF_XML) || jsonStr.startsWith(Constants.STARTER_OF_XML.toUpperCase())) {
+                // TODO 处理xml的情况
+                System.out.println("xml请求");
+            } else {
+                return JsonUtils.parseObject(jsonStr, CommonRequest.class);
+            }
         } else {
             System.out.println("不支持的请求方式");
-        }
-        if (jsonStr != null) {
-            return JsonUtils.parseObject(jsonStr, CommonRequest.class);
         }
         return null;
     }

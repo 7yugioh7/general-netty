@@ -1,7 +1,7 @@
 package com.yugioh.netty.utils;
 
 
-import com.yugioh.netty.http.server.business.BaseHandle;
+import com.yugioh.netty.http.server.business.Handle;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -27,13 +27,13 @@ public class ClassUtils {
      * @param packageName 包名
      * @return 业务处理handle数组
      */
-    public static List<Class<BaseHandle>> getAllAdaptor(String packageName) {
+    public static List<Class<Handle>> getAllAdaptor(String packageName) {
         Set<Class<?>> classes = getClasses(packageName);
-        List<Class<BaseHandle>> adaptors = new ArrayList<>();
+        List<Class<Handle>> adaptors = new ArrayList<>();
         if (classes != null) {
             for (Class<?> clazz : classes) {
-                if (isImplements(clazz, BaseHandle.class)) {
-                    adaptors.add((Class<BaseHandle>) clazz);
+                if (isImplements(clazz, Handle.class)) {
+                    adaptors.add((Class<Handle>) clazz);
                 }
             }
         }

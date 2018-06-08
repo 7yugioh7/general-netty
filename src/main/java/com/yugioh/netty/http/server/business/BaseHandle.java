@@ -1,22 +1,32 @@
 package com.yugioh.netty.http.server.business;
 
-import com.yugioh.netty.http.server.entity.CommonRequest;
-import com.yugioh.netty.http.server.entity.CommonResponse;
+import com.yugioh.netty.http.server.domain.CommonRequest;
+import com.yugioh.netty.http.server.domain.CommonResponse;
+import com.yugioh.netty.http.server.domain.ParamCheckResult;
+import com.yugioh.netty.utils.HttpResponseUtils;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpRequest;
 
 /**
  * @Author Create By lieber
- * @Description 公用处理器
- * @Date Create in 2018/6/7 16:30
+ * @Description
+ * @Date Create in 2018/6/8 14:12
  * @Modify By
  */
-public interface BaseHandle {
+public class BaseHandle implements Handle {
 
-    /**
-     * 基础处理器
-     *
-     * @param commonRequest 请求信息
-     * @return 响应信息
-     */
-    CommonResponse handle(CommonRequest commonRequest);
+    @Override
+    public CommonResponse handle(CommonRequest commonRequest) {
+        return null;
+    }
 
+    @Override
+    public ParamCheckResult checkParam(CommonRequest commonRequest) {
+        return null;
+    }
+
+    @Override
+    public void freeHandle(ChannelHandlerContext ctx, HttpRequest msg) {
+        HttpResponseUtils.response(ctx, msg, "访问的接口不存在");
+    }
 }

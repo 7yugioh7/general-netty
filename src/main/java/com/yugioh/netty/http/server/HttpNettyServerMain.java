@@ -8,7 +8,7 @@ import com.yugioh.netty.utils.PropertyUtils;
  * @Date Create in 2018/6/7 10:11
  * @Modify By
  */
-public class NettyServerMain {
+public class HttpNettyServerMain {
 
     public static void main(String[] args) {
         try {
@@ -21,7 +21,7 @@ public class NettyServerMain {
                     e.printStackTrace();
                 }
             }
-            new NettyServer().bind(port);
+            new HttpNettyServer().bind(port);
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("服务启动失败");

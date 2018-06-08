@@ -1,9 +1,9 @@
 package com.yugioh.netty.http.server.business;
 
-import com.yugioh.netty.http.server.annotation.RequestMethod;
-import com.yugioh.netty.http.server.entity.CommonRequest;
 import com.yugioh.netty.http.server.annotation.RequestMapping;
-import com.yugioh.netty.http.server.entity.CommonResponse;
+import com.yugioh.netty.http.server.domain.CommonRequest;
+import com.yugioh.netty.http.server.domain.CommonResponse;
+import com.yugioh.netty.http.server.domain.ParamCheckResult;
 
 /**
  * @Author Create By lieber
@@ -11,8 +11,8 @@ import com.yugioh.netty.http.server.entity.CommonResponse;
  * @Date Create in 2018/6/7 16:31
  * @Modify By
  */
-@RequestMapping(value = {"/demo/test"}, method = RequestMethod.GET)
-public class DemoHandle implements BaseHandle {
+@RequestMapping(value = {"/demo/test"})
+public class DemoHandle extends BaseHandle {
 
     @Override
     public CommonResponse handle(CommonRequest request) {
@@ -20,5 +20,10 @@ public class DemoHandle implements BaseHandle {
         commonResponse.setCode(200);
         commonResponse.setData("成功访问测试handle");
         return commonResponse;
+    }
+
+    @Override
+    public ParamCheckResult checkParam(CommonRequest request) {
+        return new ParamCheckResult(true, null);
     }
 }
