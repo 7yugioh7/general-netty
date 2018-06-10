@@ -43,4 +43,14 @@ public class Constants {
      * 时间戳允许误差
      */
     public final static long TIMESTAMP_ERROR = 3 * 60 * 1000;
+
+    /**
+     * https
+     */
+    public final static String HTTPS = "https";
+    /**
+     * http
+     */
+    public final static String HTTP = "http";
+
 }

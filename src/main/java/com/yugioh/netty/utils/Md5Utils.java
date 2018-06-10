@@ -8,7 +8,7 @@ import java.security.MessageDigest;
  * @Date Create in 2017/6/20. 15:23
  * @Modify By
  */
-class Md5Utils {
+public class Md5Utils {
 
     private static final String[] HEX_DIGITS = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"};
 
@@ -49,7 +49,7 @@ class Md5Utils {
      * @param charsetName 编码格式
      * @return 加密后字符串
      */
-    static String md5encode(String origin, String charsetName) {
+    public static String md5encode(String origin, String charsetName) {
         String resultString = null;
         try {
             if (!StringUtils.isNull(origin)) {

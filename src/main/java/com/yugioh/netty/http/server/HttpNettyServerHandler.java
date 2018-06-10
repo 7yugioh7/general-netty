@@ -62,7 +62,7 @@ public class HttpNettyServerHandler extends SimpleChannelInboundHandler<HttpObje
         CommonRequest commonRequest = RequestParamUtils.parse(request);
         System.out.println("请求参数为 " + commonRequest);
         ParamCheckResult prevCheckParam = CommonRequestUtils.getInstance().prevCheckParam(commonRequest);
-        if (prevCheckParam.getSuccess()) {
+        if (!prevCheckParam.getSuccess()) {
             HttpResponseUtils.response(ctx, request, new CommonResponse<>(400, prevCheckParam.getMessage(), null));
             return;
         }
@@ -79,12 +79,16 @@ public class HttpNettyServerHandler extends SimpleChannelInboundHandler<HttpObje
         }
         // 嵌入参数校验
         ParamCheckResult paramCheckResult = handle.checkParam(commonRequest);
-        if (paramCheckResult == null || paramCheckResult.getMessage() == null) {
+        if (paramCheckResult == null) {
             HttpResponseUtils.response(ctx, request, new CommonResponse<>(400, "请求参数校验失败", null));
             return;
         }
         if (!paramCheckResult.getSuccess()) {
-            HttpResponseUtils.response(ctx, request, new CommonResponse<>(400, paramCheckResult.getMessage(), null));
+            String message = paramCheckResult.getMessage();
+            if (message == null) {
+                message = "请求参数校验失败";
+            }
+            HttpResponseUtils.response(ctx, request, new CommonResponse<>(400, message, null));
             return;
         }
         // 执行目标方法

@@ -83,10 +83,12 @@ public class CommonRequestUtils {
         // fixme 此处从数据库、缓存或者远程调用获取
         System.out.println(appId);
         AppInfo appInfo = new AppInfo();
-        String path = "/conf/test.properties";
-        appInfo.setAppId(PropertyUtils.getValue(path, "appId"));
-        appInfo.setToken(PropertyUtils.getValue(path, "token"));
-        return new AppInfo();
+        String path = "/config/test.properties";
+        appId = PropertyUtils.getValue(path, "appId");
+        String token = PropertyUtils.getValue(path, "token");
+        appInfo.setAppId(appId);
+        appInfo.setToken(token);
+        return appInfo;
     }
 
     /**
@@ -97,12 +99,16 @@ public class CommonRequestUtils {
      * @return 签名
      */
     private String sign(CommonRequest commonRequest, String token) {
-        Map<String, String> json = (Map<String, String>) JSONObject.parse(JSONObject.toJSONString(commonRequest));
-        TreeMap<String, String> map = new TreeMap<>();
+        Map<String, Object> json = (Map<String, Object>) JSONObject.parse(JSONObject.toJSONString(commonRequest));
+        TreeMap<String, Object> map = new TreeMap<>();
         map.putAll(json);
         StringBuilder sb = new StringBuilder();
         for (String key : map.keySet()) {
-            String value = map.get(key);
+            Object valueObj = map.get(key);
+            String value = null;
+            if (!(valueObj instanceof String)) {
+                value = JSONObject.toJSONString(valueObj);
+            }
             if (value != null && !"".equals(value.trim()) && !"sign".equals(key) && !"appInfo".equals(key)) {
                 sb.append(key).append("=").append(value).append("&");
             }

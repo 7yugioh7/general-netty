@@ -28,7 +28,7 @@ public class CommonRequest implements Serializable {
     /**
      * 请求数据
      */
-    private String data;
+    private Object data;
     /**
      * 请求时间
      */
