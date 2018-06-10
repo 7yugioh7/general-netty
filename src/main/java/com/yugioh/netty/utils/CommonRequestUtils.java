@@ -2,6 +2,7 @@ package com.yugioh.netty.utils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.yugioh.netty.http.server.domain.CommonRequest;
+import com.yugioh.netty.http.server.domain.CommonResponse;
 import com.yugioh.netty.http.server.domain.ParamCheckResult;
 import com.yugioh.netty.http.server.entity.AppInfo;
 import com.yugioh.netty.http.server.enums.EncryptType;
@@ -105,12 +106,16 @@ public class CommonRequestUtils {
         StringBuilder sb = new StringBuilder();
         for (String key : map.keySet()) {
             Object valueObj = map.get(key);
-            String value = null;
-            if (!(valueObj instanceof String)) {
-                value = JSONObject.toJSONString(valueObj);
-            }
-            if (value != null && !"".equals(value.trim()) && !"sign".equals(key) && !"appInfo".equals(key)) {
-                sb.append(key).append("=").append(value).append("&");
+            if (valueObj != null) {
+                String value = null;
+                if (!(valueObj instanceof String)) {
+                    value = JSONObject.toJSONString(valueObj);
+                } else {
+                    value = (String) valueObj;
+                }
+                if (!"".equals(value.trim()) && !"sign".equals(key) && !"appInfo".equals(key)) {
+                    sb.append(key).append("=").append(value).append("&");
+                }
             }
         }
         sb.append("key").append("=").append(token);
@@ -180,5 +185,22 @@ public class CommonRequestUtils {
             }
         }
         return commonRequest;
+    }
+
+    /**
+     * 处理代码校验参数返回,因为代码编写可能会返回信息为空等
+     *
+     * @param paramCheckResult 待校验信息
+     * @return 参数校验结果
+     */
+    public ParamCheckResult dealParamCheckResult(ParamCheckResult paramCheckResult) {
+        if (paramCheckResult == null) {
+            return new ParamCheckResult(false, "请求参数校验失败");
+        }
+        String message = paramCheckResult.getMessage();
+        if (message == null) {
+            paramCheckResult.setMessage("请求参数校验失败");
+        }
+        return paramCheckResult;
     }
 }

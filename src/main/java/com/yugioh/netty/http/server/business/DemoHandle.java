@@ -24,6 +24,7 @@ public class DemoHandle extends BaseHandle {
 
     @Override
     public ParamCheckResult checkParam(CommonRequest request) {
-        return new ParamCheckResult(true, null);
+//        return null;
+         return new ParamCheckResult(true, null);
     }
 }

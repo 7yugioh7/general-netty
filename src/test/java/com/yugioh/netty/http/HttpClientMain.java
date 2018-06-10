@@ -48,12 +48,16 @@ public class HttpClientMain {
         StringBuilder sb = new StringBuilder();
         for (String key : map.keySet()) {
             Object valueObj = map.get(key);
-            String value = null;
-            if (!(valueObj instanceof String)) {
-                value = JSONObject.toJSONString(valueObj);
-            }
-            if (value != null && !"".equals(value.trim()) && !"sign".equals(key) && !"appInfo".equals(key)) {
-                sb.append(key).append("=").append(value).append("&");
+            if (valueObj != null) {
+                String value = null;
+                if (!(valueObj instanceof String)) {
+                    value = JSONObject.toJSONString(valueObj);
+                } else {
+                    value = (String) valueObj;
+                }
+                if (!"".equals(value.trim()) && !"sign".equals(key) && !"appInfo".equals(key)) {
+                    sb.append(key).append("=").append(value).append("&");
+                }
             }
         }
         sb.append("key").append("=").append(token);
