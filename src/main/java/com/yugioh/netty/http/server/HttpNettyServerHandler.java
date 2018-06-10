@@ -5,6 +5,7 @@ import com.yugioh.netty.http.server.business.Handle;
 import com.yugioh.netty.http.server.domain.CommonRequest;
 import com.yugioh.netty.http.server.domain.CommonResponse;
 import com.yugioh.netty.http.server.domain.ParamCheckResult;
+import com.yugioh.netty.http.server.entity.AppInfo;
 import com.yugioh.netty.utils.*;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

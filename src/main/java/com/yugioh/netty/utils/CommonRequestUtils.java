@@ -1,5 +1,6 @@
 package com.yugioh.netty.utils;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.yugioh.netty.http.server.domain.CommonRequest;
 import com.yugioh.netty.http.server.domain.CommonResponse;
@@ -58,6 +59,7 @@ public class CommonRequestUtils {
         if (commonRequest.getTimestamp() == null || commonRequest.getTimestamp() < System.currentTimeMillis() - Constants.TIMESTAMP_ERROR || commonRequest.getTimestamp() > System.currentTimeMillis() + Constants.TIMESTAMP_ERROR) {
             return new ParamCheckResult(false, "必传参数timestamp错误");
         }
+        // 1.3 检验签名(防止参数被篡改)
         if (StringUtils.isNull(commonRequest.getSign())) {
             return new ParamCheckResult(false, "必传参数sign为空");
         }
@@ -66,7 +68,7 @@ public class CommonRequestUtils {
         if (appInfo == null) {
             return new ParamCheckResult(false, "无效的appId");
         }
-        String sign = this.sign(commonRequest, appInfo.getToken());
+        String sign = commonRequest.sign(appInfo.getToken());
         if (!commonRequest.getSign().toUpperCase().equals(sign)) {
             return new ParamCheckResult(false, "签名错误");
         }
@@ -82,7 +84,6 @@ public class CommonRequestUtils {
      */
     private AppInfo getByAppId(String appId) {
         // fixme 此处从数据库、缓存或者远程调用获取
-        System.out.println(appId);
         AppInfo appInfo = new AppInfo();
         String path = "/config/test.properties";
         appId = PropertyUtils.getValue(path, "appId");
@@ -90,36 +91,6 @@ public class CommonRequestUtils {
         appInfo.setAppId(appId);
         appInfo.setToken(token);
         return appInfo;
-    }
-
-    /**
-     * 签名
-     *
-     * @param commonRequest 请求参数
-     * @param token         令牌
-     * @return 签名
-     */
-    private String sign(CommonRequest commonRequest, String token) {
-        Map<String, Object> json = (Map<String, Object>) JSONObject.parse(JSONObject.toJSONString(commonRequest));
-        TreeMap<String, Object> map = new TreeMap<>();
-        map.putAll(json);
-        StringBuilder sb = new StringBuilder();
-        for (String key : map.keySet()) {
-            Object valueObj = map.get(key);
-            if (valueObj != null) {
-                String value = null;
-                if (!(valueObj instanceof String)) {
-                    value = JSONObject.toJSONString(valueObj);
-                } else {
-                    value = (String) valueObj;
-                }
-                if (!"".equals(value.trim()) && !"sign".equals(key) && !"appInfo".equals(key)) {
-                    sb.append(key).append("=").append(value).append("&");
-                }
-            }
-        }
-        sb.append("key").append("=").append(token);
-        return Md5Utils.md5encode(sb.toString(), Constants.ENCODING).toUpperCase();
     }
 
     /**
@@ -164,8 +135,10 @@ public class CommonRequestUtils {
         EncryptType encryptType = EncryptType.getForName(commonRequest.getEncrypt());
         if (encryptType != null && commonRequest.getAppInfo() != null) {
             // 判断加密类型
+            String result = null;
             switch (encryptType) {
                 case ASE: {
+                    result = AesUtils.getInstance().decrypt(JSONObject.toJSONString(commonRequest.getData()), commonRequest.getAppInfo().getAesKey());
                     break;
                 }
                 case DES: {
@@ -183,6 +156,7 @@ public class CommonRequestUtils {
                 default:
                     return commonRequest;
             }
+            commonRequest.setData(result);
         }
         return commonRequest;
     }
