@@ -81,13 +81,16 @@ public class CommonRequestUtils {
         // fixme 此处从数据库、缓存或者远程调用获取
         AppInfo appInfo = new AppInfo();
         String path = "/config/test.properties";
-        appId = PropertyUtils.getValue(path, "appId");
+        String appId2 = PropertyUtils.getValue(path, "appId");
+        if (appId == null || !appId.equals(appId2)) {
+            return null;
+        }
         String token = PropertyUtils.getValue(path, "token");
         String aesKey = PropertyUtils.getValue(path, "aesKey");
         String desKey = PropertyUtils.getValue(path, "desKey");
         String rsaPublicKey = PropertyUtils.getValue(path, "rsaPublicKey");
         String rsaPrivateKey = PropertyUtils.getValue(path, "rsaPrivateKey");
-        appInfo.setAppId(appId);
+        appInfo.setAppId(appId2);
         appInfo.setToken(token);
         appInfo.setAesKey(aesKey);
         appInfo.setDesKey(desKey);

@@ -28,7 +28,7 @@ public class HttpResponseUtils {
     public static void response(ChannelHandlerContext ctx, HttpRequest req, Object obj) {
         ByteBuf content = ConvertUtils.obj2Buf(obj);
         if (content == null) {
-            return;
+            content = ConvertUtils.obj2Buf("");
         }
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, content);
         HttpHeaders headers = response.headers();

@@ -5,7 +5,6 @@ import com.yugioh.netty.http.server.business.Handle;
 import com.yugioh.netty.http.server.domain.CommonRequest;
 import com.yugioh.netty.http.server.domain.CommonResponse;
 import com.yugioh.netty.http.server.domain.ParamCheckResult;
-import com.yugioh.netty.http.server.entity.AppInfo;
 import com.yugioh.netty.utils.*;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -31,7 +30,7 @@ public class HttpNettyServerHandler extends SimpleChannelInboundHandler<HttpObje
                 }
                 Handle handle = RequestMapperUtils.getInstance().getHandle(url, request.getMethod());
                 if (handle == null) {
-                    HttpResponseUtils.response(ctx, request, new CommonResponse<>(404, "没有对应的路由", null));
+                    HttpResponseUtils.response(ctx, request, new CommonResponse(404, "没有对应的路由", null));
                     return;
                 }
                 // 判断是否是自定义(自定义则不会进行权限、加密、参数校验等环节)
@@ -42,7 +41,7 @@ public class HttpNettyServerHandler extends SimpleChannelInboundHandler<HttpObje
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                HttpResponseUtils.response(ctx, request, new CommonResponse<>(500, "处理请求出错", null));
+                HttpResponseUtils.response(ctx, request, new CommonResponse(500, "处理请求出错", null));
             }
         }
     }
@@ -64,35 +63,36 @@ public class HttpNettyServerHandler extends SimpleChannelInboundHandler<HttpObje
         System.out.println("请求参数为 " + commonRequest);
         ParamCheckResult prevCheckParam = CommonRequestUtils.getInstance().prevCheckParam(commonRequest);
         if (!prevCheckParam.getSuccess()) {
-            HttpResponseUtils.response(ctx, request, new CommonResponse<>(400, prevCheckParam.getMessage(), null));
+            HttpResponseUtils.response(ctx, request, new CommonResponse(400, prevCheckParam.getMessage(), null));
             return;
         }
+        // 经过了前置检验,就说明后面的响应必须要签名
         // 嵌入权限管理
         boolean permission = CommonRequestUtils.getInstance().permission(url, commonRequest.getAppInfo());
+        CommonResponse response;
         if (!permission) {
-            HttpResponseUtils.response(ctx, request, new CommonResponse<>(400, "您无此权限", null));
-            return;
+            response = new CommonResponse(400, "您无此权限", null);
+        } else {
+            // 嵌入解密
+            boolean needDecrypt = CommonRequestUtils.getInstance().needDecrypt(commonRequest);
+            if (needDecrypt) {
+                commonRequest = CommonRequestUtils.getInstance().decrypt(commonRequest);
+            }
+            // 嵌入参数校验
+            ParamCheckResult paramCheckResult = handle.checkParam(commonRequest);
+            paramCheckResult = CommonRequestUtils.getInstance().dealParamCheckResult(paramCheckResult);
+            if (!paramCheckResult.getSuccess()) {
+                response = new CommonResponse(400, paramCheckResult.getMessage(), null);
+            } else {
+                response = handle.handle(commonRequest);
+            }
+            if (needDecrypt) {
+                response = CommonResponseUtils.getInstance().encrypt(response, commonRequest);
+            }
         }
-        // 嵌入解密
-        boolean needDecrypt = CommonRequestUtils.getInstance().needDecrypt(commonRequest);
-        if (needDecrypt) {
-            commonRequest = CommonRequestUtils.getInstance().decrypt(commonRequest);
-        }
-        // 嵌入参数校验
-        ParamCheckResult paramCheckResult = handle.checkParam(commonRequest);
-        paramCheckResult = CommonRequestUtils.getInstance().dealParamCheckResult(paramCheckResult);
-        if (!paramCheckResult.getSuccess()) {
-            HttpResponseUtils.response(ctx, request, new CommonResponse<>(400, paramCheckResult.getMessage(), null));
-            return;
-        }
-        // 执行目标方法
-        CommonResponse commonResponse = handle.handle(commonRequest);
-        // 嵌入加密
-        if (needDecrypt) {
-            // 加密
-            System.out.println("这里要对响应加密");
-        }
-        HttpResponseUtils.response(ctx, request, commonResponse);
+        // 响应之前,签名
+        response = CommonResponseUtils.getInstance().sign(response, commonRequest.getAppInfo().getToken());
+        HttpResponseUtils.response(ctx, request, response);
     }
 
 }

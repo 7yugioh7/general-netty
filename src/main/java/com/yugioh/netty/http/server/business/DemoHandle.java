@@ -17,10 +17,11 @@ public class DemoHandle extends BaseHandle {
     @Override
     public CommonResponse handle(CommonRequest request) {
         System.out.println("handle中的请求参数为：" + request);
-        CommonResponse<String> commonResponse = new CommonResponse<>();
+        CommonResponse commonResponse = new CommonResponse();
         commonResponse.setCode(200);
         commonResponse.setData("成功访问测试handle");
-        return commonResponse;
+//        return commonResponse;
+        return null;
     }
 
     @Override

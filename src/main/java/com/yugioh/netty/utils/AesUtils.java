@@ -20,6 +20,19 @@ import java.security.SecureRandom;
 public class AesUtils {
 
     /**
+     * 128位密钥长度
+     */
+    private final static int LENGTH_OF_128 = 128;
+    /**
+     * 192位密钥长度
+     */
+    private final static int LENGTH_OF_192 = 192;
+    /**
+     * 256位密钥长度
+     */
+    private final static int LENGTH_OF_256 = 256;
+
+    /**
      * 工具实例
      */
     private volatile static AesUtils instance;
@@ -48,18 +61,15 @@ public class AesUtils {
      */
     public String getAesKey(int length) {
         String key = null;
-        if (length == 128 || length == 192 || length == 256) {
+        if (length == LENGTH_OF_128 || length == LENGTH_OF_192 || length == LENGTH_OF_256) {
             try {
                 KeyGenerator kg = KeyGenerator.getInstance("AES");
                 kg.init(length);
                 SecretKey sk = kg.generateKey();
                 byte[] b = sk.getEncoded();
                 key = base64Encode(b);
-                System.out.println("十六进制密钥长度为" + key.length());
-                System.out.println("二进制密钥的长度为" + key.length() * 4);
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
-                System.out.println("没有此算法。");
             }
         }
         return key;
