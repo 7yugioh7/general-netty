@@ -5,8 +5,10 @@ import sun.misc.BASE64Encoder;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 /**
@@ -36,6 +38,31 @@ public class AesUtils {
             }
         }
         return instance;
+    }
+
+    /**
+     * 获取Aes的密钥
+     *
+     * @param length 密钥长度
+     * @return Aes密钥
+     */
+    public String getAesKey(int length) {
+        String key = null;
+        if (length == 128 || length == 192 || length == 256) {
+            try {
+                KeyGenerator kg = KeyGenerator.getInstance("AES");
+                kg.init(length);
+                SecretKey sk = kg.generateKey();
+                byte[] b = sk.getEncoded();
+                key = base64Encode(b);
+                System.out.println("十六进制密钥长度为" + key.length());
+                System.out.println("二进制密钥的长度为" + key.length() * 4);
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+                System.out.println("没有此算法。");
+            }
+        }
+        return key;
     }
 
     /**

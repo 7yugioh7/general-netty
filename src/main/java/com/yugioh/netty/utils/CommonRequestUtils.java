@@ -1,15 +1,10 @@
 package com.yugioh.netty.utils;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.yugioh.netty.http.server.domain.CommonRequest;
-import com.yugioh.netty.http.server.domain.CommonResponse;
 import com.yugioh.netty.http.server.domain.ParamCheckResult;
 import com.yugioh.netty.http.server.entity.AppInfo;
 import com.yugioh.netty.http.server.enums.EncryptType;
-
-import java.util.Map;
-import java.util.TreeMap;
+import com.yugioh.netty.utils.rsa.RsaUtils;
 
 /**
  * @Author Create By lieber
@@ -88,8 +83,16 @@ public class CommonRequestUtils {
         String path = "/config/test.properties";
         appId = PropertyUtils.getValue(path, "appId");
         String token = PropertyUtils.getValue(path, "token");
+        String aesKey = PropertyUtils.getValue(path, "aesKey");
+        String desKey = PropertyUtils.getValue(path, "desKey");
+        String rsaPublicKey = PropertyUtils.getValue(path, "rsaPublicKey");
+        String rsaPrivateKey = PropertyUtils.getValue(path, "rsaPrivateKey");
         appInfo.setAppId(appId);
         appInfo.setToken(token);
+        appInfo.setAesKey(aesKey);
+        appInfo.setDesKey(desKey);
+        appInfo.setRsaPrivateKey(rsaPrivateKey);
+        appInfo.setRsaPublicKey(rsaPublicKey);
         return appInfo;
     }
 
@@ -135,22 +138,31 @@ public class CommonRequestUtils {
         EncryptType encryptType = EncryptType.getForName(commonRequest.getEncrypt());
         if (encryptType != null && commonRequest.getAppInfo() != null) {
             // 判断加密类型
-            String result = null;
+            String result;
             switch (encryptType) {
                 case ASE: {
-                    result = AesUtils.getInstance().decrypt(JSONObject.toJSONString(commonRequest.getData()), commonRequest.getAppInfo().getAesKey());
+                    result = AesUtils.getInstance().decrypt(commonRequest.getData(), commonRequest.getAppInfo().getAesKey());
                     break;
                 }
                 case DES: {
+                    result = DesUtils.getInstance().decrypt(commonRequest.getData(), commonRequest.getAppInfo().getDesKey());
                     break;
                 }
                 case RSA: {
+                    // RSA有两种方式,一是我们颁发公私钥对,那么此时最好是调用端公钥加密,服务端私钥解密;
+                    // 二是像支付宝一样由客户端配置,那么最好是客户端私钥加密,服务端公钥解密
+                    // 此处先采用第一种模式
+                    result = RsaUtils.getInstance().decryptByPrivateKey(commonRequest.getData(), commonRequest.getAppInfo().getRsaPrivateKey());
                     break;
                 }
                 case RSA_AES: {
+                    String key = RsaUtils.getInstance().decryptByPrivateKey(commonRequest.getEncryptKey(), commonRequest.getAppInfo().getRsaPrivateKey());
+                    result = AesUtils.getInstance().decrypt(commonRequest.getData(), key);
                     break;
                 }
                 case RSA_DES: {
+                    String key = RsaUtils.getInstance().decryptByPrivateKey(commonRequest.getEncryptKey(), commonRequest.getAppInfo().getRsaPrivateKey());
+                    result = DesUtils.getInstance().decrypt(commonRequest.getData(), key);
                     break;
                 }
                 default:
