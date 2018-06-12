@@ -1,7 +1,7 @@
 # general-netty
 基础netty服务,总的规划是,netty-http服务,然后是netty-rpc服务。代码持续更新
 ## 1.使用说明
-
+启动http server,运行com.yugioh.netty.http.server.HttpNettyServerMain的main方法,可在resource/config/main.properties中配置相关启动参数
 ## 参数 ##
 ### 公共参数 ###
 | 参数名     | 含义         | 是否必传           | 示例                             | 类型   |
