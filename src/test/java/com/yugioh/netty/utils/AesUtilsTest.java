@@ -14,7 +14,7 @@ public class AesUtilsTest {
 
     @Test
     public void testKey() {
-        String result = aesUtils.getAesKey(256);
+        String result = aesUtils.getAesKey();
         System.out.println(result);
     }
 

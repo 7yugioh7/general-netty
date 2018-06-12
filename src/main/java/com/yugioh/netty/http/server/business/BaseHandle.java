@@ -1,8 +1,8 @@
 package com.yugioh.netty.http.server.business;
 
 import com.yugioh.netty.http.server.domain.CommonRequest;
-import com.yugioh.netty.http.server.domain.CommonResponse;
 import com.yugioh.netty.http.server.domain.ParamCheckResult;
+import com.yugioh.netty.http.server.domain.Response;
 import com.yugioh.netty.utils.HttpResponseUtils;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
@@ -16,7 +16,7 @@ import io.netty.handler.codec.http.HttpRequest;
 public class BaseHandle implements Handle {
 
     @Override
-    public CommonResponse handle(CommonRequest commonRequest) {
+    public Response handle(CommonRequest commonRequest) {
         return null;
     }
 

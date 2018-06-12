@@ -34,7 +34,7 @@ public class CommonResponse implements Serializable {
     /**
      * 数据
      */
-    private Object body;
+    private String body;
 
     /**
      * 随机签名字符串
@@ -49,7 +49,7 @@ public class CommonResponse implements Serializable {
     public CommonResponse() {
     }
 
-    public CommonResponse(int code, String msg, Object body) {
+    public CommonResponse(int code, String msg, String body) {
         this.code = code;
         this.msg = msg;
         this.body = body;

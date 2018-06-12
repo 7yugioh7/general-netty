@@ -3,6 +3,7 @@ package com.yugioh.netty.http.server.business;
 import com.yugioh.netty.http.server.domain.CommonRequest;
 import com.yugioh.netty.http.server.domain.CommonResponse;
 import com.yugioh.netty.http.server.domain.ParamCheckResult;
+import com.yugioh.netty.http.server.domain.Response;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
 
@@ -20,7 +21,7 @@ public interface Handle {
      * @param commonRequest 请求信息
      * @return 响应信息
      */
-    CommonResponse handle(CommonRequest commonRequest);
+    Response handle(CommonRequest commonRequest);
 
     /**
      * 校验参数

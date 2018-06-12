@@ -5,6 +5,7 @@ import com.yugioh.netty.http.server.business.Handle;
 import com.yugioh.netty.http.server.domain.CommonRequest;
 import com.yugioh.netty.http.server.domain.CommonResponse;
 import com.yugioh.netty.http.server.domain.ParamCheckResult;
+import com.yugioh.netty.http.server.domain.Response;
 import com.yugioh.netty.utils.*;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -85,7 +86,8 @@ public class HttpNettyServerHandler extends SimpleChannelInboundHandler<HttpObje
                 response = new CommonResponse(400, paramCheckResult.getMessage(), null);
             } else {
                 // 执行目标方法
-                response = handle.handle(commonRequest);
+                Response handleResponse = handle.handle(commonRequest);
+                response = CommonResponseUtils.getInstance().change(handleResponse);
             }
             if (needDecrypt) {
                 // 响应加密

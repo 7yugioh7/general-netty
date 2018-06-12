@@ -5,6 +5,9 @@ import com.yugioh.netty.http.server.domain.ParamCheckResult;
 import com.yugioh.netty.http.server.entity.AppInfo;
 import com.yugioh.netty.http.server.enums.EncryptType;
 import com.yugioh.netty.utils.rsa.RsaUtils;
+import lombok.Data;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @Author Create By lieber
@@ -19,6 +22,8 @@ public class CommonRequestUtils {
      */
     private volatile static CommonRequestUtils instance;
 
+    private static ConcurrentHashMap<String, RequestTimes> cacheMap;
+
     /**
      * 获取实例
      *
@@ -29,6 +34,7 @@ public class CommonRequestUtils {
             synchronized (CommonRequestUtils.class) {
                 if (instance == null) {
                     instance = new CommonRequestUtils();
+                    cacheMap = new ConcurrentHashMap<>(16);
                 }
             }
         }
@@ -59,6 +65,9 @@ public class CommonRequestUtils {
             return new ParamCheckResult(false, "必传参数sign为空");
         }
         // 1.4 限流
+        if (this.overTimes(commonRequest.getAppId())) {
+            return new ParamCheckResult(false, "访问过于频繁,请稍后再试");
+        }
         // 获取appInfo
         AppInfo appInfo = this.getByAppId(commonRequest.getAppId());
         if (appInfo == null) {
@@ -192,5 +201,48 @@ public class CommonRequestUtils {
             paramCheckResult.setMessage("请求参数校验失败");
         }
         return paramCheckResult;
+    }
+
+    /**
+     * 判断是否操作评论
+     *
+     * @param appId 调用凭证
+     * @return true/false
+     */
+    private boolean overTimes(String appId) {
+        // fixme 此处暂时使用map模拟redis缓存
+        if (appId == null) {
+            return true;
+        }
+        RequestTimes requestTimes = cacheMap.get(appId);
+        int overtime = 3 * 60 * 1000;
+        if (requestTimes == null || System.currentTimeMillis() - requestTimes.getStartTime() > overtime) {
+            requestTimes = new RequestTimes();
+            requestTimes.setStartTime(System.currentTimeMillis());
+            requestTimes.setTimes(1);
+            cacheMap.put(appId, requestTimes);
+            return false;
+        } else {
+            // 判断缓存是否失效
+            requestTimes.setTimes(requestTimes.getTimes() + 1);
+            int maxTime = 10;
+            if (requestTimes.getTimes() > maxTime) {
+                return true;
+            }
+            cacheMap.put(appId, requestTimes);
+            return false;
+        }
+    }
+
+    @Data
+    private class RequestTimes {
+        /**
+         * 开始访问时间
+         */
+        private long startTime;
+        /**
+         * 访问次数
+         */
+        private int times;
     }
 }

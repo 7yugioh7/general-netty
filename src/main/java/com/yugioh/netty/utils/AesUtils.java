@@ -56,21 +56,18 @@ public class AesUtils {
     /**
      * 获取Aes的密钥
      *
-     * @param length 密钥长度
      * @return Aes密钥
      */
-    public String getAesKey(int length) {
+    public String getAesKey() {
         String key = null;
-        if (length == LENGTH_OF_128 || length == LENGTH_OF_192 || length == LENGTH_OF_256) {
-            try {
-                KeyGenerator kg = KeyGenerator.getInstance("AES");
-                kg.init(length);
-                SecretKey sk = kg.generateKey();
-                byte[] b = sk.getEncoded();
-                key = base64Encode(b);
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            }
+        try {
+            KeyGenerator kg = KeyGenerator.getInstance("AES");
+            kg.init(LENGTH_OF_128);
+            SecretKey sk = kg.generateKey();
+            byte[] b = sk.getEncoded();
+            key = base64Encode(b);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
         }
         return key;
     }
@@ -112,12 +109,13 @@ public class AesUtils {
             KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
             SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
             secureRandom.setSeed(encryptKey.getBytes());
-            keyGenerator.init(128, secureRandom);
+            keyGenerator.init(LENGTH_OF_128, secureRandom);
 
             Cipher cipher = Cipher.getInstance("AES");
             cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(keyGenerator.generateKey().getEncoded(), "AES"));
             return cipher.doFinal(content.getBytes(Constants.ENCODING));
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("加密时初始化密钥出现异常");
         }
     }
@@ -148,7 +146,7 @@ public class AesUtils {
             KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
             SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
             secureRandom.setSeed(decryptKey.getBytes());
-            keyGenerator.init(128, secureRandom);
+            keyGenerator.init(LENGTH_OF_128, secureRandom);
             Cipher cipher = Cipher.getInstance("AES");
             cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(keyGenerator.generateKey().getEncoded(), "AES"));
             byte[] decryptBytes = cipher.doFinal(encryptBytes);
