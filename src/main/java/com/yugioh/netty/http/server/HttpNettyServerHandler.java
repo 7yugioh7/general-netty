@@ -42,7 +42,7 @@ public class HttpNettyServerHandler extends SimpleChannelInboundHandler<HttpObje
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                HttpResponseUtils.response(ctx, request, new CommonResponse(500, "处理请求出错", null));
+                HttpResponseUtils.response(ctx, request, new CommonResponse(105, "处理请求出错", null));
             }
         }
     }
@@ -64,7 +64,7 @@ public class HttpNettyServerHandler extends SimpleChannelInboundHandler<HttpObje
         System.out.println("请求参数为 " + commonRequest);
         ParamCheckResult prevCheckParam = CommonRequestUtils.getInstance().prevCheckParam(commonRequest);
         if (!prevCheckParam.getSuccess()) {
-            HttpResponseUtils.response(ctx, request, new CommonResponse(400, prevCheckParam.getMessage(), null));
+            HttpResponseUtils.response(ctx, request, new CommonResponse(100, prevCheckParam.getMessage(), null));
             return;
         }
         // 经过了前置检验,就说明后面的响应必须要签名
@@ -85,6 +85,7 @@ public class HttpNettyServerHandler extends SimpleChannelInboundHandler<HttpObje
             if (!paramCheckResult.getSuccess()) {
                 response = new CommonResponse(400, paramCheckResult.getMessage(), null);
             } else {
+                // 此处可能嵌入更高级的参数校验,包括xss等
                 // 执行目标方法
                 Response handleResponse = handle.handle(commonRequest);
                 response = CommonResponseUtils.getInstance().change(handleResponse);

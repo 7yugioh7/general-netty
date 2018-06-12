@@ -25,7 +25,6 @@ public class CommonResponse implements Serializable {
      * 状态码
      */
     private int code;
-
     /**
      * 消息
      */

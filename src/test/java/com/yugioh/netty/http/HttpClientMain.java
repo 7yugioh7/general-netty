@@ -27,35 +27,16 @@ public class HttpClientMain {
         String url = "http://127.0.0.1:7777/demo/test";
         JSONObject data = new JSONObject();
         data.put("orderId", System.currentTimeMillis());
-        CommonRequest commonRequest = this.getPostString(data);
+        String appId = PropertyUtils.getValue("/config/test.properties", "appId");
+        String token = PropertyUtils.getValue("/config/test.properties", "token");
+        CommonRequest commonRequest = new CommonRequest();
+        commonRequest.setAppId(appId);
+        commonRequest.setBody(JSONObject.toJSONString(data));
+        commonRequest.setTimestamp(System.currentTimeMillis());
+        commonRequest.setSign(commonRequest.sign(token));
         for (int i = 0; i < 20; i++) {
             HttpClientUtils.doPostString(url, JSONObject.toJSONString(commonRequest));
         }
-    }
-
-    /**
-     * 生成请求字符串
-     *
-     * @param data 请求数据
-     * @return 请求字符串
-     */
-    private CommonRequest getPostString(Object data) {
-        String appId = PropertyUtils.getValue("/config/test.properties", "appId");
-        String token = PropertyUtils.getValue("/config/test.properties", "token");
-        String aesKey = PropertyUtils.getValue("/config/test.properties", "aesKey");
-        String desKey = PropertyUtils.getValue("/config/test.properties", "desKey");
-        String rsaPublicKey = PropertyUtils.getValue("/config/test.properties", "rsaPublicKey");
-        String rsaPrivateKey = PropertyUtils.getValue("/config/test.properties", "rsaPrivateKey");
-        CommonRequest commonRequest = new CommonRequest();
-        commonRequest.setAppId(appId);
-        String rsaAesKey = AesUtils.getInstance().getAesKey();
-        String rsaDesKey = DesUtils.getInstance().getDesKey();
-        commonRequest.setBody(DesUtils.getInstance().encrypt(JSONObject.toJSONString(data), rsaDesKey));
-        commonRequest.setTimestamp(System.currentTimeMillis());
-        commonRequest.setEncryptKey(RsaUtils.getInstance().encryptByPublicKey(rsaDesKey, rsaPublicKey));
-        commonRequest.setEncrypt(EncryptType.RSA_DES.name());
-        commonRequest.setSign(commonRequest.sign(token));
-        return commonRequest;
     }
 
     @Test

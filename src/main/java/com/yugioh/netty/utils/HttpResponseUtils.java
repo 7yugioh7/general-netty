@@ -4,7 +4,10 @@ import com.yugioh.netty.http.server.domain.CommonResponse;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpRequest;
 
 import static io.netty.handler.codec.http.HttpHeaders.Names.*;
 import static io.netty.handler.codec.http.HttpHeaders.Values.KEEP_ALIVE;
@@ -28,7 +31,7 @@ public class HttpResponseUtils {
      */
     public static void response(ChannelHandlerContext ctx, HttpRequest req, Object obj) {
         if (obj == null) {
-            obj = new CommonResponse(200, "接口正常处理完成,但是响应数据为空", null);
+            obj = new CommonResponse(107, "接口正常处理完成,但是响应数据为空", null);
         }
         ByteBuf content = ConvertUtils.obj2Buf(obj);
         if (content == null) {

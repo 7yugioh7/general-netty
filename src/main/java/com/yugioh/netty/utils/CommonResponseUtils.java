@@ -100,12 +100,18 @@ public class CommonResponseUtils {
      * @return 通用响应对象
      */
     public CommonResponse change(Response handleResponse) {
-        CommonResponse response = new CommonResponse();
-        response.setCode(handleResponse.getCode());
-        response.setMsg(handleResponse.getMsg());
-        if (handleResponse.getBody() != null) {
-            response.setBody(JSONObject.toJSONString(handleResponse.getBody()));
+        if (handleResponse != null) {
+            CommonResponse response = new CommonResponse();
+            response.setCode(handleResponse.getCode());
+            if (response.getCode() < 200) {
+                response.setCode(response.getCode() + 200);
+            }
+            response.setMsg(handleResponse.getMsg());
+            if (handleResponse.getBody() != null) {
+                response.setBody(JSONObject.toJSONString(handleResponse.getBody()));
+            }
+            return response;
         }
-        return response;
+        return null;
     }
 }
