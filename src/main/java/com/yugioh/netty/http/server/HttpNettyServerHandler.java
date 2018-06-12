@@ -67,26 +67,28 @@ public class HttpNettyServerHandler extends SimpleChannelInboundHandler<HttpObje
             return;
         }
         // 经过了前置检验,就说明后面的响应必须要签名
-        // 嵌入权限管理
+        // 权限管理
         boolean permission = CommonRequestUtils.getInstance().permission(url, commonRequest.getAppInfo());
         CommonResponse response;
         if (!permission) {
             response = new CommonResponse(400, "您无此权限", null);
         } else {
-            // 嵌入解密
+            // 解密
             boolean needDecrypt = CommonRequestUtils.getInstance().needDecrypt(commonRequest);
             if (needDecrypt) {
                 commonRequest = CommonRequestUtils.getInstance().decrypt(commonRequest);
             }
-            // 嵌入参数校验
+            // 参数校验
             ParamCheckResult paramCheckResult = handle.checkParam(commonRequest);
             paramCheckResult = CommonRequestUtils.getInstance().dealParamCheckResult(paramCheckResult);
             if (!paramCheckResult.getSuccess()) {
                 response = new CommonResponse(400, paramCheckResult.getMessage(), null);
             } else {
+                // 执行目标方法
                 response = handle.handle(commonRequest);
             }
             if (needDecrypt) {
+                // 响应加密
                 response = CommonResponseUtils.getInstance().encrypt(response, commonRequest);
             }
         }

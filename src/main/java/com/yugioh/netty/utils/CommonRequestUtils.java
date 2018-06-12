@@ -58,6 +58,7 @@ public class CommonRequestUtils {
         if (StringUtils.isNull(commonRequest.getSign())) {
             return new ParamCheckResult(false, "必传参数sign为空");
         }
+        // 1.4 限流
         // 获取appInfo
         AppInfo appInfo = this.getByAppId(commonRequest.getAppId());
         if (appInfo == null) {
@@ -144,34 +145,34 @@ public class CommonRequestUtils {
             String result;
             switch (encryptType) {
                 case ASE: {
-                    result = AesUtils.getInstance().decrypt(commonRequest.getData(), commonRequest.getAppInfo().getAesKey());
+                    result = AesUtils.getInstance().decrypt(commonRequest.getBody(), commonRequest.getAppInfo().getAesKey());
                     break;
                 }
                 case DES: {
-                    result = DesUtils.getInstance().decrypt(commonRequest.getData(), commonRequest.getAppInfo().getDesKey());
+                    result = DesUtils.getInstance().decrypt(commonRequest.getBody(), commonRequest.getAppInfo().getDesKey());
                     break;
                 }
                 case RSA: {
                     // RSA有两种方式,一是我们颁发公私钥对,那么此时最好是调用端公钥加密,服务端私钥解密;
                     // 二是像支付宝一样由客户端配置,那么最好是客户端私钥加密,服务端公钥解密
                     // 此处先采用第一种模式
-                    result = RsaUtils.getInstance().decryptByPrivateKey(commonRequest.getData(), commonRequest.getAppInfo().getRsaPrivateKey());
+                    result = RsaUtils.getInstance().decryptByPrivateKey(commonRequest.getBody(), commonRequest.getAppInfo().getRsaPrivateKey());
                     break;
                 }
                 case RSA_AES: {
                     String key = RsaUtils.getInstance().decryptByPrivateKey(commonRequest.getEncryptKey(), commonRequest.getAppInfo().getRsaPrivateKey());
-                    result = AesUtils.getInstance().decrypt(commonRequest.getData(), key);
+                    result = AesUtils.getInstance().decrypt(commonRequest.getBody(), key);
                     break;
                 }
                 case RSA_DES: {
                     String key = RsaUtils.getInstance().decryptByPrivateKey(commonRequest.getEncryptKey(), commonRequest.getAppInfo().getRsaPrivateKey());
-                    result = DesUtils.getInstance().decrypt(commonRequest.getData(), key);
+                    result = DesUtils.getInstance().decrypt(commonRequest.getBody(), key);
                     break;
                 }
                 default:
                     return commonRequest;
             }
-            commonRequest.setData(result);
+            commonRequest.setBody(result);
         }
         return commonRequest;
     }

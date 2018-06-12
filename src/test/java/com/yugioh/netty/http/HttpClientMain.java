@@ -48,9 +48,9 @@ public class HttpClientMain {
         commonRequest.setAppId(appId);
         String rsaAesKey = AesUtils.getInstance().getAesKey(256);
         String rsaDesKey = DesUtils.getInstance().getDesKey();
-        commonRequest.setData(DesUtils.getInstance().encrypt(JSONObject.toJSONString(data), rsaDesKey));
+        commonRequest.setBody(DesUtils.getInstance().encrypt(JSONObject.toJSONString(data), rsaDesKey));
         commonRequest.setTimestamp(System.currentTimeMillis());
-         commonRequest.setEncryptKey(RsaUtils.getInstance().encryptByPublicKey(rsaDesKey, rsaPublicKey));
+        commonRequest.setEncryptKey(RsaUtils.getInstance().encryptByPublicKey(rsaDesKey, rsaPublicKey));
         commonRequest.setEncrypt(EncryptType.RSA_DES.name());
         commonRequest.setSign(commonRequest.sign(token));
         return commonRequest;

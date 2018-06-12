@@ -1,5 +1,6 @@
 package com.yugioh.netty.utils;
 
+import com.yugioh.netty.http.server.domain.CommonResponse;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -26,6 +27,9 @@ public class HttpResponseUtils {
      * @param obj 响应对象
      */
     public static void response(ChannelHandlerContext ctx, HttpRequest req, Object obj) {
+        if (obj == null) {
+            obj = new CommonResponse(200, "接口正常处理完成,但是响应数据为空", null);
+        }
         ByteBuf content = ConvertUtils.obj2Buf(obj);
         if (content == null) {
             content = ConvertUtils.obj2Buf("");

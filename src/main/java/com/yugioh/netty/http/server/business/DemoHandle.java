@@ -19,14 +19,12 @@ public class DemoHandle extends BaseHandle {
         System.out.println("handle中的请求参数为：" + request);
         CommonResponse commonResponse = new CommonResponse();
         commonResponse.setCode(200);
-        commonResponse.setData("成功访问测试handle");
-//        return commonResponse;
-        return null;
+        commonResponse.setBody("成功访问测试handle");
+        return commonResponse;
     }
 
     @Override
     public ParamCheckResult checkParam(CommonRequest request) {
-//        return null;
          return new ParamCheckResult(true, null);
     }
 }

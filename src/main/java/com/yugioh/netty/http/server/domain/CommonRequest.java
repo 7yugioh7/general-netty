@@ -32,11 +32,15 @@ public class CommonRequest implements Serializable {
     /**
      * 请求数据
      */
-    private String data;
+    private String body;
     /**
      * 请求时间
      */
     private Long timestamp;
+    /**
+     * 随机签名字符串
+     */
+    private String nonceStr;
     /**
      * 加密类型
      */

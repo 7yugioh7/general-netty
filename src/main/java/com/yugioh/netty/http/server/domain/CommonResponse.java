@@ -3,6 +3,7 @@ package com.yugioh.netty.http.server.domain;
 import com.alibaba.fastjson.JSONObject;
 import com.yugioh.netty.utils.Constants;
 import com.yugioh.netty.utils.Md5Utils;
+import com.yugioh.netty.utils.RandomStringUtils;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -33,7 +34,12 @@ public class CommonResponse implements Serializable {
     /**
      * 数据
      */
-    private Object data;
+    private Object body;
+
+    /**
+     * 随机签名字符串
+     */
+    private String nonceStr;
 
     /**
      * 签名
@@ -43,10 +49,10 @@ public class CommonResponse implements Serializable {
     public CommonResponse() {
     }
 
-    public CommonResponse(int code, String msg, Object data) {
+    public CommonResponse(int code, String msg, Object body) {
         this.code = code;
         this.msg = msg;
-        this.data = data;
+        this.body = body;
     }
 
     /**
@@ -56,6 +62,9 @@ public class CommonResponse implements Serializable {
      * @return 签名字符串
      */
     public String sign(String token) {
+        if (this.nonceStr == null) {
+            this.nonceStr = RandomStringUtils.getInstance().getRandomString(32);
+        }
         JSONObject jsonObject = JSONObject.parseObject(JSONObject.toJSONString(this));
         // 放入TreeMap对数据进行排序
         TreeMap<String, String> map = new TreeMap<>();

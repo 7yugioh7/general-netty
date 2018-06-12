@@ -58,36 +58,36 @@ public class CommonResponseUtils {
      */
     public CommonResponse encrypt(CommonResponse response, CommonRequest commonRequest) {
         EncryptType encryptType = EncryptType.getForName(commonRequest.getEncrypt());
-        if (encryptType != null && commonRequest.getAppInfo() != null && response != null && response.getData() != null) {
+        if (encryptType != null && commonRequest.getAppInfo() != null && response != null && response.getBody() != null) {
             // 判断加密类型
             String result;
             switch (encryptType) {
                 case ASE: {
-                    result = AesUtils.getInstance().encrypt(JSONObject.toJSONString(response.getData()), commonRequest.getAppInfo().getAesKey());
+                    result = AesUtils.getInstance().encrypt(JSONObject.toJSONString(response.getBody()), commonRequest.getAppInfo().getAesKey());
                     break;
                 }
                 case DES: {
-                    result = DesUtils.getInstance().encrypt(JSONObject.toJSONString(response.getData()), commonRequest.getAppInfo().getDesKey());
+                    result = DesUtils.getInstance().encrypt(JSONObject.toJSONString(response.getBody()), commonRequest.getAppInfo().getDesKey());
                     break;
                 }
                 case RSA: {
-                    result = RsaUtils.getInstance().encryptByPrivateKey(JSONObject.toJSONString(response.getData()), commonRequest.getAppInfo().getRsaPrivateKey());
+                    result = RsaUtils.getInstance().encryptByPrivateKey(JSONObject.toJSONString(response.getBody()), commonRequest.getAppInfo().getRsaPrivateKey());
                     break;
                 }
                 case RSA_AES: {
                     String key = RsaUtils.getInstance().decryptByPrivateKey(commonRequest.getEncryptKey(), commonRequest.getAppInfo().getRsaPrivateKey());
-                    result = AesUtils.getInstance().encrypt(JSONObject.toJSONString(response.getData()), key);
+                    result = AesUtils.getInstance().encrypt(JSONObject.toJSONString(response.getBody()), key);
                     break;
                 }
                 case RSA_DES: {
                     String key = RsaUtils.getInstance().decryptByPrivateKey(commonRequest.getEncryptKey(), commonRequest.getAppInfo().getRsaPrivateKey());
-                    result = DesUtils.getInstance().encrypt(JSONObject.toJSONString(response.getData()), key);
+                    result = DesUtils.getInstance().encrypt(JSONObject.toJSONString(response.getBody()), key);
                     break;
                 }
                 default:
                     return response;
             }
-            response.setData(result);
+            response.setBody(result);
         }
         return response;
     }
